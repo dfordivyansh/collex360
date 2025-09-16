@@ -35,7 +35,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".railway.app"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.railway.app",
