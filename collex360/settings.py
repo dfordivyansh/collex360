@@ -37,6 +37,10 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.railway.app",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
