@@ -20,3 +20,4 @@ threadpoolctl==3.6.0
 tzdata==2025.2
 whitenoise==6.9.0
 django-environ
+dj-database-url
