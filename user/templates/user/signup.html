@@ -1,0 +1,187 @@
+{% extends "base/base.html" %}
+
+{% block signup %}{% endblock %} 
+{% block sidebar %}
+<aside
+  class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-2xl py-8 px-6 flex-col items-center h-[40vh] w-22 z-40 transition">
+  <div class="flex flex-col gap-8 w-full">
+    <!-- Home -->
+    <a
+      href="/"
+      class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:scale-110 transition"
+      title="Home">
+      <i class="fas fa-house text-lg"></i>
+    </a>
+
+    <!-- Login -->
+    <a
+      href="/user/login/"
+      class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-green-400 hover:bg-green-600 hover:text-white hover:scale-110 transition"
+      title="Login">
+      <i class="fas fa-sign-in-alt text-lg"></i>
+    </a>
+
+    <!-- Back -->
+    <button
+      onclick="history.back()"
+      class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-red-400 hover:bg-red-600 hover:text-white hover:scale-110 transition"
+      title="Go Back">
+      <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+
+{% block mobile_nav %}
+<nav
+  class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+  
+  <!-- Home -->
+  <a
+    href="/"
+    class="text-indigo-400 hover:text-white hover:scale-110 transition"
+    title="Home">
+    <i class="fas fa-house text-xl"></i>
+  </a>
+
+  <!-- Login -->
+  <a
+    href="/user/login/"
+    class="text-green-400 hover:text-white hover:scale-110 transition"
+    title="Login">
+    <i class="fas fa-sign-in-alt text-xl"></i>
+  </a>
+
+  <!-- Back -->
+  <button
+    onclick="history.back()"
+    class="text-red-400 hover:text-white hover:scale-110 transition"
+    title="Go Back">
+    <i class="fas fa-arrow-left text-xl"></i>
+  </button>
+</nav>
+{% endblock %}
+
+
+{% block content %}
+{% load static %}
+
+<div class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+  <!-- Three.js Particle Background -->
+  <canvas id="signup3d" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Signup Card -->
+  <div class="relative z-10 w-full max-w-md p-8 rounded-2xl backdrop-blur-lg bg-white/5 
+              border border-indigo-400/20 shadow-2xl animate-fadeIn">
+    <h2 class="text-3xl font-extrabold mb-6 text-transparent bg-clip-text 
+               bg-gradient-to-r from-indigo-400 via-blue-300 to-slate-200 text-center">
+      Create Account
+    </h2>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label for="id_username" class="block mb-1 text-gray-300">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div>
+        <label for="id_email" class="block mb-1 text-gray-300">Email</label>
+        {{ form.email }}
+      </div>
+
+      <div>
+        <label for="id_password1" class="block mb-1 text-gray-300">Password</label>
+        {{ form.password1 }}
+      </div>
+
+      <div>
+        <label for="id_password2" class="block mb-1 text-gray-300">Confirm Password</label>
+        {{ form.password2 }}
+      </div>
+
+      <!-- Gradient Button -->
+      <button type="submit"
+        class="w-full py-3 px-6 rounded-full bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-400 
+               hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-500 
+               text-white font-semibold shadow-lg transform transition duration-200 hover:scale-105 flex items-center justify-center gap-2">
+        <i class="fas fa-user-plus"></i> Sign Up
+      </button>
+
+      {% if form.errors %}
+  <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+    <ul>
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+    </form>
+
+    <p class="mt-6 text-sm text-gray-400 text-center">
+      Already have an account?
+      <a href="{% url 'login' %}" class="text-indigo-400 hover:text-indigo-300 underline flex items-center justify-center gap-1">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </a>
+    </p>
+  </div>
+</div>
+
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script>
+  // 🌌 Three.js glowing particles (same as hero section)
+  const canvas = document.getElementById("signup3d");
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.z = 6;
+
+  const particlesCount = 2000;
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  for (let i = 0; i < particlesCount; i++) {
+    positions.push((Math.random() - 0.5) * 30);
+    positions.push((Math.random() - 0.5) * 30);
+    positions.push((Math.random() - 0.5) * 30);
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({ 
+    color: 0x8b5cf6, 
+    size: 0.04,
+    transparent: true,
+    opacity: 0.85 
+  });
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0008;
+    particles.rotation.x += 0.0003;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+{% endblock %}

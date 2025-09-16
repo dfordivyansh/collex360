@@ -1,0 +1,216 @@
+{% extends "base/base.html" %}
+
+{# hide signup + sidebar + mobile nav #}
+{% block signup %}{% endblock %}
+{% block sidebar %}
+<aside class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 
+             backdrop-blur-xl bg-white/10 border border-white/20 
+             shadow-[0_8px_32px_rgba(0,0,0,0.6)] 
+             rounded-2xl py-8 px-6 flex-col items-center 
+             h-[50vh] w-22 z-40 transition">
+
+  <div class="flex flex-col gap-8 w-full">
+    <!-- Home -->
+    <a href="/" class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-indigo-400 
+       hover:bg-indigo-600 hover:text-white hover:scale-110 transition" title="Home">
+       <i class="fas fa-house text-lg"></i>
+    </a>
+
+    <!-- Add Subject -->
+    <a href="/attendance/add/" class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-green-400 
+       hover:bg-green-600 hover:text-white hover:scale-110 transition" title="Add Subject">
+       <i class="fas fa-plus text-lg"></i>
+    </a>
+
+    <!-- Mark Attendance -->
+    <a href="/attendance/mark/" class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-yellow-400 
+       hover:bg-yellow-600 hover:text-white hover:scale-110 transition" title="Mark Attendance">
+       <i class="fas fa-calendar-check text-lg"></i>
+    </a>
+
+    <!-- Back -->
+    <button onclick="history.back()" 
+       class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-red-400 
+       hover:bg-red-600 hover:text-white hover:scale-110 transition" title="Go Back">
+       <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+{% block mobile_nav %}
+<nav class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 
+            backdrop-blur-xl bg-white/10 border border-white/20 
+            shadow-[0_8px_32px_rgba(0,0,0,0.4)] 
+            rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+
+  <!-- Home -->
+  <a href="/" class="text-indigo-400 hover:text-white hover:scale-110 transition" title="Home">
+    <i class="fas fa-house text-xl"></i>
+  </a>
+
+  <!-- Add Subject -->
+  <a href="/attendance/add/" class="text-green-400 hover:text-white hover:scale-110 transition" title="Add Subject">
+    <i class="fas fa-plus text-xl"></i>
+  </a>
+
+  <!-- Mark Attendance -->
+  <a href="/attendance/mark/" class="text-yellow-400 hover:text-white hover:scale-110 transition" title="Mark Attendance">
+    <i class="fas fa-calendar-check text-xl"></i>
+  </a>
+
+  <!-- Back -->
+  <button onclick="history.back()" class="text-red-400 hover:text-white hover:scale-110 transition" title="Go Back">
+    <i class="fas fa-arrow-left text-xl"></i>
+  </button>
+</nav>
+{% endblock %}
+
+
+{% block content %}
+<div class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+  
+  <!-- Three.js canvas -->
+  <canvas id="bgCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Glassmorphic Card -->
+  <div class="relative z-10 w-full max-w-lg rounded-2xl backdrop-blur-lg bg-white/5 border border-slate-600/30 shadow-2xl p-10">
+
+    <!-- Title -->
+    <h2 class="text-3xl font-extrabold mb-10 text-transparent bg-clip-text 
+               bg-gradient-to-r from-indigo-400 to-slate-300 
+               drop-shadow-[0_0_10px_rgba(99,102,241,0.5)] text-center">
+      Add Subject
+    </h2>
+
+    <!-- Form -->
+    <form method="post" class="space-y-8">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <!-- Subject Field -->
+      <div class="space-y-2">
+        <label for="{{ form.name.id_for_label }}" class="block text-gray-300 font-medium">
+          Subject Name
+        </label>
+        {{ form.name }}
+        {% if form.name.errors %}
+          <p class="text-sm text-rose-400 mt-1">{{ form.name.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Days Section (No Sunday) -->
+      <div class="space-y-4">
+        <p class="block text-gray-300 font-medium">Days & Lectures</p>
+        <div id="days-container" class="space-y-3">
+          {% for day, label in form.fields.days.choices %}
+            {% if day != "SUN" %}
+            <div class="flex items-center space-x-4">
+              <label class="flex items-center space-x-2">
+                <input type="checkbox" name="days" value="{{ day }}" class="day-checkbox form-checkbox h-5 w-5 text-indigo-500 rounded focus:ring-indigo-400">
+                <span class="text-gray-300">{{ label }}</span>
+              </label>
+              <input type="number" name="lectures_{{ day }}" min="1" max="10" placeholder="Lectures"
+                     class="hidden lectures-input w-24 px-3 py-2 rounded-lg bg-black border border-white text-white 
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if form.days.errors %}
+          <p class="text-sm text-rose-400 mt-1">{{ form.days.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+              class="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 
+                     text-white font-semibold hover:scale-105 
+                     hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition duration-300">
+        Save
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Tailwind tweaks for Django form fields -->
+<style>
+  input[type="text"] {
+    @apply w-full px-4 py-3 rounded-lg bg-black border border-white 
+           text-white placeholder-gray-400 focus:outline-none 
+           focus:ring-2 focus:ring-indigo-500;
+  }
+
+  input[type="number"] {
+    @apply bg-black border border-white text-white;
+  }
+
+  label {
+    @apply text-gray-300;
+  }
+</style>
+
+<!-- Show/Hide lectures input when checkbox is checked -->
+<script>
+  document.querySelectorAll(".day-checkbox").forEach(checkbox => {
+    checkbox.addEventListener("change", function() {
+      const input = this.closest("div").querySelector(".lectures-input");
+      if (this.checked) {
+        input.classList.remove("hidden");
+      } else {
+        input.classList.add("hidden");
+        input.value = ""; // reset if unchecked
+      }
+    });
+  });
+</script>
+
+<!-- Three.js Animated Background -->
+<script>
+  const canvas = document.getElementById("bgCanvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.z = 7;
+
+  const particlesCount = 2000;
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  for (let i = 0; i < particlesCount; i++) {
+    positions.push((Math.random() - 0.5) * 40);
+    positions.push((Math.random() - 0.5) * 40);
+    positions.push((Math.random() - 0.5) * 40);
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({ 
+    color: 0x6366f1,
+    size: 0.05,
+    transparent: true,
+    opacity: 0.85
+  });
+
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0009;
+    particles.rotation.x += 0.0004;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+{% endblock %}

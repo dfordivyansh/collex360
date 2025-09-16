@@ -1,0 +1,162 @@
+{% extends "base/base.html" %}
+{% block signup %}{% endblock %}
+
+{% block sidebar %}
+<aside
+  class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-2xl py-8 px-6 flex-col items-center h-[50vh] w-22 z-40 transition">
+  <div class="flex flex-col gap-8 w-full">
+    <!-- Home -->
+    <a href="/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:scale-110 transition" title="Home">
+      <i class="fas fa-house text-lg"></i>
+    </a>
+
+    <!-- Add Expense -->
+    <a href="/expense/add/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-green-400 hover:bg-green-600 hover:text-white hover:scale-110 transition" title="Add Expense">
+      <i class="fas fa-plus text-lg"></i>
+    </a>
+
+    <!-- View All -->
+    <a href="/expense/list/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-yellow-400 hover:bg-yellow-600 hover:text-white hover:scale-110 transition" title="View All">
+      <i class="fas fa-list text-lg"></i>
+    </a>
+
+    <!-- Back -->
+    <button onclick="history.back()" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-red-400 hover:bg-red-600 hover:text-white hover:scale-110 transition" title="Go Back">
+      <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+{% block mobile_nav %}
+<nav
+  class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+  <a href="/" class="text-indigo-400 hover:text-white hover:scale-110 transition" title="Home">
+    <i class="fas fa-house text-xl"></i>
+  </a>
+  <a href="/expense/add/" class="text-green-400 hover:text-white hover:scale-110 transition" title="Add Expense">
+    <i class="fas fa-plus text-xl"></i>
+  </a>
+  <a href="/expense/list/" class="text-yellow-400 hover:text-white hover:scale-110 transition" title="View All">
+    <i class="fas fa-list text-xl"></i>
+  </a>
+  <button onclick="history.back()" class="text-red-400 hover:text-white hover:scale-110 transition" title="Go Back">
+    <i class="fas fa-arrow-left text-xl"></i>
+  </button>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
+  <!-- Three.js canvas -->
+  <canvas id="bgCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Glassmorphic Card -->
+  <div class="relative z-10 w-full max-w-6xl rounded-2xl backdrop-blur-lg bg-white/5 border border-indigo-400/20 shadow-2xl p-6 md:p-10 animate-fadeIn">
+
+    <!-- Title -->
+    <h2 class="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-blue-300 to-slate-200 drop-shadow-[0_0_12px_rgba(99,102,241,0.6)] text-center tracking-wide">
+      My Expenses
+    </h2>
+
+    <!-- Expense Table -->
+    <div class="overflow-x-auto rounded-xl shadow-lg mt-6">
+      <table class="w-full border-collapse rounded-lg overflow-hidden">
+        <thead>
+          <tr class="bg-indigo-500/20 text-indigo-300">
+            <th class="p-4 text-left">Title</th>
+            <th class="p-4 text-center">Amount</th>
+            <th class="p-4 text-center">Category</th>
+            <th class="p-4 text-center">Date</th>
+            <th class="p-4 text-center">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+          <tr class="border-b border-gray-700 text-gray-200 hover:bg-indigo-500/10 transition duration-200">
+            <td class="p-4 font-medium">{{ expense.title }}</td>
+            <td class="p-4 text-center font-semibold text-green-400">₹{{ expense.amount }}</td>
+            <td class="p-4 text-center">{{ expense.category }}</td>
+            <td class="p-4 text-center">{{ expense.date }}</td>
+            <td class="p-4 text-center text-gray-400">{{ expense.notes|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="p-4 text-center text-gray-400">
+              No expenses recorded yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js Background -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script>
+  const canvas = document.getElementById('bgCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000);
+  camera.position.z = 200;
+
+  const particles = 200;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(particles * 3);
+  for (let i = 0; i < particles * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 800;
+  }
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({ color: 0x06b6d4, size: 3, transparent: true, opacity: 0.8 });
+  const points = new THREE.Points(geometry, material);
+  scene.add(points);
+
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x6366f1, opacity: 0.2, transparent: true });
+  let lineGeometry = new THREE.BufferGeometry();
+  let linePositions = new Float32Array(particles * particles * 3);
+  lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+  scene.add(lines);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const pos = geometry.attributes.position.array;
+    const linePos = lines.geometry.attributes.position.array;
+    let lineIndex = 0;
+
+    for (let i = 0; i < particles; i++) {
+      const ix = i * 3, x = pos[ix], y = pos[ix+1], z = pos[ix+2];
+      for (let j = i+1; j < particles; j++) {
+        const jx = j*3, dx = x - pos[jx], dy = y - pos[jx+1], dz = z - pos[jx+2];
+        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if (dist < 120) {
+          linePos[lineIndex++] = x;
+          linePos[lineIndex++] = y;
+          linePos[lineIndex++] = z;
+          linePos[lineIndex++] = pos[jx];
+          linePos[lineIndex++] = pos[jx+1];
+          linePos[lineIndex++] = pos[jx+2];
+        }
+      }
+    }
+
+    lines.geometry.setDrawRange(0, lineIndex/3);
+    lines.geometry.attributes.position.needsUpdate = true;
+
+    points.rotation.y += 0.0005;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+</script>
+{% endblock %}

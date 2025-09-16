@@ -1,0 +1,376 @@
+{% extends "base/base.html" %}
+{% block signup %}{% endblock %}
+{% block sidebar %}
+<aside class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-2xl py-8 px-6 flex-col items-center h-[60vh] w-22 z-40 transition">
+  <div class="flex flex-col gap-8 w-full">
+    <a href="/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:scale-110 transition" title="Home">
+      <i class="fas fa-house text-lg"></i>
+    </a>
+    <a href="{% url 'skills:generate' %}" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-green-400 hover:bg-green-600 hover:text-white hover:scale-110 transition" title="Generate Roadmap">
+      <i class="fas fa-plus text-lg"></i>
+    </a>
+    <a href="{% url 'skills:dashboard' %}" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-yellow-400 hover:bg-yellow-600 hover:text-white hover:scale-110 transition" title="My Roadmaps">
+      <i class="fas fa-map text-lg"></i>
+    </a>
+    <button onclick="history.back()" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-red-400 hover:bg-red-600 hover:text-white hover:scale-110 transition" title="Go Back">
+      <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+{% block mobile_nav %}
+<nav class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+  <a href="/" class="text-indigo-400 hover:text-white hover:scale-110 transition" title="Home"><i class="fas fa-house text-xl"></i></a>
+  <a href="{% url 'skills:generate' %}" class="text-green-400 hover:text-white hover:scale-110 transition" title="Generate Roadmap"><i class="fas fa-plus text-xl"></i></a>
+  <a href="{% url 'skills:dashboard' %}" class="text-yellow-400 hover:text-white hover:scale-110 transition" title="My Roadmaps"><i class="fas fa-map text-xl"></i></a>
+  <button onclick="history.back()" class="text-red-400 hover:text-white hover:scale-110 transition" title="Go Back"><i class="fas fa-arrow-left text-xl"></i></button>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+  <!-- Three.js canvas -->
+  <canvas id="bgCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Glassmorphic Card -->
+  <div class="relative z-10 w-full max-w-6xl rounded-2xl backdrop-blur-lg bg-white/5 border border-indigo-400/20 shadow-2xl p-6 md:p-10 animate-fadeIn">
+    
+    <!-- Welcome -->
+    <div class="text-center mb-6">
+      <p class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-400 via-blue-300 to-purple-400 text-transparent bg-clip-text animate-fadeIn drop-shadow-lg inline-block">
+        Welcome, 
+        <span class="text-pink-400 animate-pulse">{{ user.username }}</span>
+        <i class="fas fa-laptop-code text-yellow-400 ml-2 animate-bounce"></i>
+      </p>
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-blue-300 to-slate-200 drop-shadow-[0_0_12px_rgba(99,102,241,0.6)] text-center tracking-wide">
+      Skills Dashboard
+    </h2>
+
+    <!-- Stats with Charts -->
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+  <!-- Level -->
+  <div class="p-4 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-800/10 border border-indigo-400/30">
+    <h3 class="text-sm font-semibold text-indigo-300 flex justify-center items-center gap-2">
+      <i class="fas fa-level-up-alt"></i> Level
+    </h3>
+    <p class="text-2xl font-bold text-green-400 mt-1">{{ profile.level }}</p>
+    <canvas id="levelChart" class="mt-1 h-16"></canvas>
+  </div>
+
+  <!-- XP -->
+  <div class="p-4 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-800/10 border border-blue-400/30">
+    <h3 class="text-sm font-semibold text-blue-300 flex justify-center items-center gap-2">
+      <i class="fas fa-star"></i> XP
+    </h3>
+    <p class="text-2xl font-bold text-slate-200 mt-1">{{ profile.xp }}</p>
+    <div class="w-full h-2 bg-gray-700 rounded-full mt-1">
+      <div class="h-2 rounded-full bg-gradient-to-r from-green-400 to-blue-500" style="width: {{ profile.xp_percent }}%;"></div>
+    </div>
+  </div>
+
+  <!-- Streak -->
+  <div class="p-4 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-800/10 border border-rose-400/30">
+    <h3 class="text-sm font-semibold text-rose-300 flex justify-center items-center gap-2">
+      <i class="fas fa-fire"></i> Streak
+    </h3>
+    <p class="text-2xl font-bold text-yellow-300 mt-1">{{ profile.streak }} days</p>
+    <canvas id="streakChart" class="mt-1 h-16"></canvas>
+  </div>
+</div>
+
+
+    <!-- Roadmaps -->
+    <div class="space-y-6">
+      {% for roadmap in roadmaps %}
+        <div class="p-6 rounded-xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-indigo-400/20 shadow-lg hover:scale-[1.02] transition">
+          <h3 class="text-2xl font-bold text-indigo-300 mb-2"><i class="fas fa-layer-group"></i> {{ roadmap.tech_stack }}</h3>
+          <p class="text-gray-300">Progress: {{ roadmap.progress_percent }}%</p>
+          <div class="w-full bg-gray-700 rounded-full mt-2 h-3">
+            <div class="h-3 rounded-full bg-gradient-to-r from-yellow-400 via-green-400 to-blue-500" style="width: {{ roadmap.progress_percent }}%;"></div>
+          </div>
+          {% if roadmap.badge %}
+            <p class="text-emerald-400 font-semibold mt-2"><i class="fas fa-trophy"></i> {{ roadmap.badge }}</p>
+          {% endif %}
+          <div class="mt-4">
+            <a href="{% url 'skills:roadmap_detail' roadmap.id %}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition">
+              <i class="fas fa-eye"></i> View Roadmap
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-gray-400 text-center">No roadmaps yet. Generate one!</p>
+      {% endfor %}
+    </div>
+
+<!-- Motivational Quotes -->
+<div class="mt-12 p-8 rounded-2xl bg-gradient-to-r from-purple-700/30 via-indigo-800/20 to-blue-700/30 border border-indigo-400/20 shadow-lg text-center">
+  <h3 class="text-2xl font-bold text-indigo-300 mb-4">Motivation</h3>
+  <p id="quoteBox" class="text-lg text-gray-200 italic">"Code is like humor. When you have to explain it, it’s bad."</p>
+</div>
+
+<!-- Leaderboard Button -->
+<div class="mt-8 text-center">
+  <a href="{% url 'skills:leaderboard' %}" 
+     class="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
+            text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition">
+    <i class="fas fa-trophy mr-2"></i> View Leaderboard
+  </a>
+</div>
+
+<!-- Tech Stacks Carousel -->
+<div class="mt-12">
+  <h3 class="text-2xl font-bold text-indigo-300 mb-6 text-center">Explore Tech Stacks & Tools</h3>
+
+  <div id="techCarousel" class="flex overflow-x-auto space-x-6 pb-4 scrollbar-hide scroll-smooth">
+    
+    <!-- MERN -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-green-400 mb-3">MERN Stack</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-react text-cyan-400"></i>
+        <i class="fab fa-node-js text-green-500"></i>
+        <i class="fas fa-database text-yellow-400"></i>
+      </div>
+    </div>
+
+    <!-- MEAN -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-yellow-400 mb-3">MEAN Stack</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-angular text-red-500"></i>
+        <i class="fab fa-node-js text-green-500"></i>
+        <i class="fas fa-database text-indigo-400"></i>
+      </div>
+    </div>
+
+    <!-- AI / ML -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-pink-400 mb-3">AI / ML</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-python text-yellow-400"></i>
+        <i class="fas fa-robot text-indigo-400"></i>
+        <i class="fas fa-brain text-pink-500"></i>
+      </div>
+    </div>
+
+    <!-- Data Analytics -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-cyan-400 mb-3">Data Analytics</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fas fa-chart-line text-green-400"></i>
+        <i class="fas fa-database text-yellow-500"></i>
+        <i class="fas fa-chart-pie text-blue-400"></i>
+      </div>
+    </div>
+
+    <!-- Cloud Computing -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-blue-400 mb-3">Cloud Computing</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-aws text-orange-400"></i>
+        <i class="fab fa-microsoft text-blue-500"></i>
+        <i class="fab fa-google text-green-400"></i>
+      </div>
+    </div>
+
+    <!-- DevOps -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-purple-400 mb-3">DevOps</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-docker text-blue-400"></i>
+        <i class="fab fa-jenkins text-red-500"></i>
+        <i class="fab fa-git-alt text-orange-400"></i>
+      </div>
+    </div>
+
+    <!-- Blockchain -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-indigo-400 mb-3">Blockchain</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-ethereum text-purple-500"></i>
+        <i class="fas fa-link text-blue-400"></i>
+        <i class="fas fa-coins text-yellow-400"></i>
+      </div>
+    </div>
+
+    <!-- Mobile Dev -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-green-400 mb-3">Mobile Dev</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fab fa-android text-green-500"></i>
+        <i class="fab fa-apple text-gray-300"></i>
+        <i class="fab fa-react text-cyan-400"></i>
+      </div>
+    </div>
+
+    <!-- Cybersecurity -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-red-400 mb-3">Cybersecurity</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fas fa-lock text-yellow-400"></i>
+        <i class="fas fa-user-shield text-green-500"></i>
+        <i class="fas fa-key text-indigo-400"></i>
+      </div>
+    </div>
+
+    <!-- Game Dev -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-yellow-300 mb-3">Game Dev</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fas fa-gamepad text-pink-500"></i>
+        <i class="fas fa-vr-cardboard text-indigo-400"></i>
+        <i class="fas fa-laptop-code text-green-400"></i>
+      </div>
+    </div>
+
+    <!-- AR / VR -->
+    <div class="min-w-[250px] p-6 rounded-xl bg-gray-800/60 border border-gray-600 text-center">
+      <h4 class="text-xl font-semibold text-pink-400 mb-3">AR / VR</h4>
+      <div class="flex justify-center gap-6 text-3xl text-gray-300">
+        <i class="fas fa-vr-cardboard text-orange-400"></i>
+        <i class="fas fa-glasses text-blue-400"></i>
+        <i class="fas fa-brain text-purple-400"></i>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hide scrollbar -->
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
+<!-- Auto-scroll script -->
+<script>
+
+
+    // Motivational Quotes
+  const quotes = [
+    "Code is like humor. When you have to explain it, it’s bad.",
+    "The best error message is the one that never shows up.",
+    "Learning to write programs stretches your mind and helps you think better.",
+    "First, solve the problem. Then, write the code.",
+    "Programming isn’t about what you know; it’s about what you can figure out."
+  ];
+  let idx = 0;
+  const quoteBox = document.getElementById("quoteBox");
+
+  setInterval(() => {
+    idx = (idx + 1) % quotes.length;
+    quoteBox.classList.add("opacity-0");
+    setTimeout(() => {
+      quoteBox.innerText = quotes[idx];
+      quoteBox.classList.remove("opacity-0");
+    }, 700);
+  }, 5000);
+
+  const carousel = document.getElementById("techCarousel");
+
+  let scrollAmount = 0;
+  function autoScroll() {
+    if (scrollAmount >= carousel.scrollWidth - carousel.clientWidth) {
+      scrollAmount = 0;
+    } else {
+      scrollAmount += 2; // Speed
+    }
+    carousel.scrollTo({
+      left: scrollAmount,
+      behavior: "smooth"
+    });
+  }
+  setInterval(autoScroll, 80); // Interval
+</script>
+
+</div>
+</div>
+
+<style>
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Three.js Background
+  const canvas = document.getElementById("bgCanvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 8;
+
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  for (let i = 0; i < 2000; i++) {
+    positions.push((Math.random() - 0.5) * 50);
+    positions.push((Math.random() - 0.5) * 50);
+    positions.push((Math.random() - 0.5) * 50);
+  }
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  const material = new THREE.PointsMaterial({ color: 0x6366f1, size: 0.05, transparent: true, opacity: 0.8 });
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0007;
+    particles.rotation.x += 0.0003;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+
+  // Chart.js
+  const levelChart = new Chart(document.getElementById('levelChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Level', 'Remaining'],
+      datasets: [{
+        data: [{{ profile.level_percent }}, 100-{{ profile.level_percent }}],
+        backgroundColor: ['#6366f1', '#1f2937'],
+        borderWidth: 0
+      }]
+    },
+    options: { cutout: '70%', plugins: { legend: { display: false } } }
+  });
+
+  const ctx = document.getElementById('streakChart').getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, '#f43f5e');
+  gradient.addColorStop(1, '#facc15');
+
+  const streakChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Streak'],
+      datasets: [{
+        label: 'Days',
+        data: [{{ profile.streak }}],
+        backgroundColor: gradient,
+        borderRadius: 5
+      }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+});
+</script>
+{% endblock %}

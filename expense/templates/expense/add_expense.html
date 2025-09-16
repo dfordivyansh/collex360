@@ -1,0 +1,185 @@
+{% extends "base/base.html" %}
+
+{# hide signup + sidebar + mobile nav #}
+{% block signup %}{% endblock %}
+{% block sidebar %}
+<aside class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 
+             backdrop-blur-xl bg-white/10 border border-white/20 
+             shadow-[0_8px_32px_rgba(0,0,0,0.6)] 
+             rounded-2xl py-8 px-6 flex-col items-center 
+             h-[50vh] w-22 z-40 transition">
+
+  <div class="flex flex-col gap-8 w-full">
+    <!-- Home -->
+    <a href="/" class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-indigo-400 
+       hover:bg-indigo-600 hover:text-white hover:scale-110 transition" title="Home">
+       <i class="fas fa-house text-lg"></i>
+    </a>
+
+    <!-- Add Expense -->
+    <a href="/expense/add/" class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-green-400 
+       hover:bg-green-600 hover:text-white hover:scale-110 transition" title="Add Expense">
+       <i class="fas fa-plus text-lg"></i>
+    </a>
+
+    <!-- View All -->
+    <a href="/expense/list/" class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-yellow-400 
+       hover:bg-yellow-600 hover:text-white hover:scale-110 transition" title="View Expenses">
+       <i class="fas fa-list text-lg"></i>
+    </a>
+
+    <!-- Back -->
+    <button onclick="history.back()" 
+       class="w-14 h-14 flex items-center justify-center rounded-xl 
+       bg-white/10 border border-white/20 text-red-400 
+       hover:bg-red-600 hover:text-white hover:scale-110 transition" title="Go Back">
+       <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+{% block mobile_nav %}
+<nav class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 
+            backdrop-blur-xl bg-white/10 border border-white/20 
+            shadow-[0_8px_32px_rgba(0,0,0,0.4)] 
+            rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+
+  <a href="/" class="text-indigo-400 hover:text-white hover:scale-110 transition" title="Home">
+    <i class="fas fa-house text-xl"></i>
+  </a>
+  <a href="/expense/add/" class="text-green-400 hover:text-white hover:scale-110 transition" title="Add Expense">
+    <i class="fas fa-plus text-xl"></i>
+  </a>
+  <a href="/expense/list/" class="text-yellow-400 hover:text-white hover:scale-110 transition" title="View Expenses">
+    <i class="fas fa-list text-xl"></i>
+  </a>
+  <button onclick="history.back()" class="text-red-400 hover:text-white hover:scale-110 transition" title="Go Back">
+    <i class="fas fa-arrow-left text-xl"></i>
+  </button>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+  
+  <!-- Three.js canvas -->
+  <canvas id="bgCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Glassmorphic Card -->
+  <div class="relative z-10 w-full max-w-lg rounded-2xl backdrop-blur-lg bg-white/5 border border-slate-600/30 shadow-2xl p-10">
+
+    <!-- Title -->
+    <h2 class="text-3xl font-extrabold mb-10 text-transparent bg-clip-text 
+               bg-gradient-to-r from-green-400 to-slate-300 
+               drop-shadow-[0_0_10px_rgba(34,197,94,0.5)] text-center">
+      Add Expense
+    </h2>
+
+    <!-- Form -->
+    <form method="post" class="space-y-8">
+      {% csrf_token %}
+
+      <!-- Title -->
+      <div class="space-y-2">
+        <label class="block text-gray-300 font-medium">Title</label>
+        <input type="text" name="title" placeholder="e.g. Grocery shopping" 
+               class="w-full px-4 py-3 rounded-lg bg-black border border-white 
+                      text-white placeholder-gray-400 focus:outline-none 
+                      focus:ring-2 focus:ring-green-500">
+      </div>
+
+      <!-- Amount -->
+      <div class="space-y-2">
+        <label class="block text-gray-300 font-medium">Amount</label>
+        <input type="number" step="0.01" name="amount" placeholder="₹0.00"
+               class="w-full px-4 py-3 rounded-lg bg-black border border-white 
+                      text-white placeholder-gray-400 focus:outline-none 
+                      focus:ring-2 focus:ring-green-500">
+      </div>
+
+      <!-- Category -->
+      <div class="space-y-2">
+        <label class="block text-gray-300 font-medium">Category</label>
+        <select name="category" 
+                class="w-full px-4 py-3 rounded-lg bg-black border border-white 
+                       text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+          <option value="Food">Food</option>
+          <option value="Travel">Travel</option>
+          <option value="Books">Books</option>
+          <option value="Stationery">Stationery</option>
+          <option value="Rent">Rent</option>
+          <option value="Subscriptions">Subscriptions</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Notes -->
+      <div class="space-y-2">
+        <label class="block text-gray-300 font-medium">Notes</label>
+        <textarea name="notes" rows="3" placeholder="Optional notes..."
+                  class="w-full px-4 py-3 rounded-lg bg-black border border-white 
+                         text-white placeholder-gray-400 focus:outline-none 
+                         focus:ring-2 focus:ring-green-500"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+              class="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 
+                     text-white font-semibold hover:scale-105 
+                     hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] transition duration-300">
+        Save
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Three.js Animated Background -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script>
+  const canvas = document.getElementById("bgCanvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.z = 7;
+
+  const particlesCount = 2000;
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  for (let i = 0; i < particlesCount; i++) {
+    positions.push((Math.random() - 0.5) * 40);
+    positions.push((Math.random() - 0.5) * 40);
+    positions.push((Math.random() - 0.5) * 40);
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({ 
+    color: 0x22c55e,
+    size: 0.05,
+    transparent: true,
+    opacity: 0.85
+  });
+
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0009;
+    particles.rotation.x += 0.0004;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+{% endblock %}

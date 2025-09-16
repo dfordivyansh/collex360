@@ -1,0 +1,335 @@
+{% extends "base/base.html" %}
+{% block signup %}{% endblock %}
+
+{% block sidebar %}
+<aside
+  class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-2xl py-8 px-6 flex-col items-center h-[50vh] w-22 z-40 transition">
+  <div class="flex flex-col gap-8 w-full">
+    <!-- Home -->
+    <a href="/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:scale-110 transition" title="Home">
+      <i class="fas fa-house text-lg"></i>
+    </a>
+
+    <!-- Add Expense -->
+    <a href="/expense/add/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-green-400 hover:bg-green-600 hover:text-white hover:scale-110 transition" title="Add Expense">
+      <i class="fas fa-plus text-lg"></i>
+    </a>
+
+    <!-- View All -->
+    <a href="/expense/list/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-yellow-400 hover:bg-yellow-600 hover:text-white hover:scale-110 transition" title="View All">
+      <i class="fas fa-list text-lg"></i>
+    </a>
+
+    <!-- Back -->
+    <button onclick="history.back()" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-red-400 hover:bg-red-600 hover:text-white hover:scale-110 transition" title="Go Back">
+      <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+{% block mobile_nav %}
+<nav
+  class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+  <a href="/" class="text-indigo-400 hover:text-white hover:scale-110 transition" title="Home">
+    <i class="fas fa-house text-xl"></i>
+  </a>
+  <a href="/expense/add/" class="text-green-400 hover:text-white hover:scale-110 transition" title="Add Expense">
+    <i class="fas fa-plus text-xl"></i>
+  </a>
+  <a href="/expense/list/" class="text-yellow-400 hover:text-white hover:scale-110 transition" title="View All">
+    <i class="fas fa-list text-xl"></i>
+  </a>
+  <button onclick="history.back()" class="text-red-400 hover:text-white hover:scale-110 transition" title="Go Back">
+    <i class="fas fa-arrow-left text-xl"></i>
+  </button>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
+  <!-- Three.js canvas -->
+  <canvas id="bgCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Glassmorphic Card -->
+  <div class="relative z-10 w-full max-w-6xl rounded-2xl backdrop-blur-lg bg-white/5 border border-indigo-400/20 shadow-2xl p-6 md:p-10 animate-fadeIn">
+<!-- Logged-in Username -->
+<div class="text-center mb-6">
+  <p
+    class="text-2xl md:text-3xl font-bold 
+           bg-gradient-to-r from-indigo-400 via-blue-300 to-purple-400 
+           text-transparent bg-clip-text 
+           animate-fadeIn drop-shadow-lg inline-block"
+  >
+    Welcome, 
+    <span class="text-pink-400 animate-pulse">{{ user.username }}</span>
+    <i class="fas fa-hand-peace text-yellow-400 ml-2 animate-bounce"></i>
+  </p>
+</div>
+
+    <!-- Title -->
+    <h2 class="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-blue-300 to-slate-200 drop-shadow-[0_0_12px_rgba(99,102,241,0.6)] text-center tracking-wide">
+      Expense Dashboard
+    </h2>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center">
+      <div class="p-6 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-800/10 border border-indigo-400/30">
+        <h3 class="text-lg font-semibold text-indigo-300">Total Expenses</h3>
+        <p class="text-3xl font-bold text-emerald-400">₹{{ total_expense }}</p>
+      </div>
+      <div class="p-6 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-800/10 border border-blue-400/30">
+        <h3 class="text-lg font-semibold text-blue-300">This Month</h3>
+        <p class="text-3xl font-bold text-slate-200">₹{{ monthly_expense }}</p>
+      </div>
+      <div class="p-6 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-800/10 border border-rose-400/30">
+        <h3 class="text-lg font-semibold text-rose-300">Top Category</h3>
+        <p class="text-3xl font-bold text-indigo-200">
+          {% if top_category %}{{ top_category }}{% else %}-{% endif %}
+        </p>
+      </div>
+    </div>
+
+<!-- 🔥 Expense List with Actions -->
+    <div class="overflow-x-auto rounded-xl shadow-lg mt-10">
+      <table class="w-full border-collapse rounded-lg overflow-hidden">
+        <thead>
+          <tr class="bg-indigo-500/20 text-indigo-300">
+            <th class="p-4 text-left">Title</th>
+            <th class="p-4 text-center">Amount</th>
+            <th class="p-4 text-center">Category</th>
+            <th class="p-4 text-center">Date</th>
+            <th class="p-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exp in expenses %}
+          <tr class="border-b border-gray-700 text-gray-200 hover:bg-indigo-500/10 transition duration-200">
+            <td class="p-4 font-medium">{{ exp.title }}</td>
+            <td class="p-4 text-center">₹{{ exp.amount }}</td>
+            <td class="p-4 text-center">{{ exp.category }}</td>
+            <td class="p-4 text-center">{{ exp.date }}</td>
+            <td class="p-4 text-center">
+              <form method="post" class="inline-flex space-x-2 items-center">
+                {% csrf_token %}
+                <input type="hidden" name="expense_id" value="{{ exp.id }}" />
+
+                <!-- Amount input -->
+                <input 
+                  type="number" 
+                  name="amount" 
+                  min="1" 
+                  class="w-20 px-2 py-1 rounded-md text-gray-900 text-sm focus:ring-2 focus:ring-indigo-400" 
+                  placeholder="Amt" 
+                  
+                />
+
+                <!-- Add -->
+                <button name="action" value="add_amount"
+                  class="px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-500 text-white transition shadow-md hover:scale-105">
+                  Add
+                </button>
+
+                <!-- Remove -->
+                <button name="action" value="remove_amount"
+                  class="px-3 py-1 rounded-lg bg-yellow-600/80 hover:bg-yellow-500 text-white transition shadow-md hover:scale-105">
+                  Remove
+                </button>
+
+                <!-- Delete -->
+                <button name="action" value="delete"
+                  onclick="return confirm('Delete this expense?');"
+                  class="px-3 py-1 rounded-lg bg-rose-700/80 hover:bg-rose-600 text-white transition shadow-md hover:scale-105">
+                  Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="p-4 text-center text-gray-400">
+              No expenses yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+<br>
+
+    <!-- AI Insights -->
+    <div class="text-center mb-8">
+      <button id="toggleInsightsBtn"
+        class="px-8 py-3 rounded-full bg-gradient-to-r from-blue-700 via-cyan-600 to-teal-600 text-white font-bold text-lg tracking-wide shadow-lg transform hover:scale-105 transition-all duration-500 border border-cyan-400/40 backdrop-blur-md">
+        <i class="fas fa-robot mr-2"></i> Show AI Insights
+      </button>
+    </div>
+
+    <div id="aiInsightsSection"
+      class="hidden mb-10 p-6 rounded-2xl relative overflow-hidden bg-gradient-to-br from-slate-900/50 via-slate-800/40 to-slate-900/30 border border-cyan-500/20 shadow-xl backdrop-blur-md scale-95 opacity-0 transition-all duration-1000">
+      <h3 class="text-3xl font-extrabold text-center mb-8 relative z-10 holo-text-pro tracking-wide">
+        <i class="fas fa-robot mr-2"></i> AI Expense Insights
+      </h3>
+      <div class="grid md:grid-cols-2 gap-6 text-gray-100 relative z-10">
+        {% for insight in ai_insights %}
+        <div class="ai-card p-5 rounded-xl bg-gradient-to-br from-slate-800/40 via-slate-900/30 to-slate-800/40 border border-cyan-400/30 shadow-md backdrop-blur-md transition-all duration-700 hover:scale-105 hover:shadow-cyan-400/40">
+          <p class="text-sm">{{ insight }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="rounded-xl p-6 bg-white/5 border border-indigo-400/20 shadow-lg">
+      <h3 class="text-xl font-semibold text-indigo-300 mb-4 text-center">Expense Breakdown</h3>
+      <div class="w-full overflow-x-auto">
+        <div class="min-w-[600px] md:min-w-0">
+          <canvas id="expenseChart" class="w-full h-166 md:h-96"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('expenseChart').getContext('2d');
+  const expenseChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{% for cat, total in category_data.items %}"{{ cat }}",{% endfor %}],
+      datasets: [{
+        label: 'Expenses',
+        data: [{% for cat, total in category_data.items %}{{ total }},{% endfor %}],
+        backgroundColor: 'rgba(99, 102, 241, 0.6)', // semi-transparent fill
+        borderColor: 'rgba(99, 102, 241, 1)',       // solid border
+        borderWidth: 1,
+        borderRadius: 8,                             // rounded corners
+        barPercentage: 0.7,
+        categoryPercentage: 0.8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#e5e7eb' },
+          grid: { color: 'rgba(99, 102, 241, 0.1)' }
+        },
+        x: {
+          ticks: { color: '#e5e7eb' },
+          grid: { color: 'rgba(99, 102, 241, 0.1)' }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#e5e7eb' } }
+      }
+    }
+  });
+
+  // AI Toggle
+  document.getElementById("toggleInsightsBtn").addEventListener("click", function () {
+    const section = document.getElementById("aiInsightsSection");
+    const cards = section.querySelectorAll(".ai-card");
+    if (section.classList.contains("show-section")) {
+      section.classList.remove("show-section");
+      cards.forEach(c => c.classList.remove("show"));
+      this.innerHTML = '<i class="fas fa-robot mr-2"></i> Show AI Insights';
+    } else {
+      section.classList.add("show-section");
+      cards.forEach((c, i) => {
+        setTimeout(() => c.classList.add("show"), i * 150);
+      });
+      this.innerHTML = '<i class="fas fa-robot mr-2"></i> Hide AI Insights';
+    }
+  });
+
+  // Three.js Particle Network Background
+  const canvas = document.getElementById('bgCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000);
+  camera.position.z = 200;
+
+  const particles = 200;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(particles * 3);
+  for (let i = 0; i < particles * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 800;
+  }
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({
+    color: 0x06b6d4,
+    size: 3,
+    transparent: true,
+    opacity: 0.8
+  });
+
+  const points = new THREE.Points(geometry, material);
+  scene.add(points);
+
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x6366f1, opacity: 0.2, transparent: true });
+  let lineGeometry = new THREE.BufferGeometry();
+  let linePositions = new Float32Array(particles * particles * 3);
+  lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+  scene.add(lines);
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const pos = geometry.attributes.position.array;
+    const linePos = lines.geometry.attributes.position.array;
+    let lineIndex = 0;
+
+    for (let i = 0; i < particles; i++) {
+      const ix = i * 3, x = pos[ix], y = pos[ix+1], z = pos[ix+2];
+      for (let j = i+1; j < particles; j++) {
+        const jx = j*3, dx = x - pos[jx], dy = y - pos[jx+1], dz = z - pos[jx+2];
+        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if (dist < 120) {
+          linePos[lineIndex++] = x;
+          linePos[lineIndex++] = y;
+          linePos[lineIndex++] = z;
+          linePos[lineIndex++] = pos[jx];
+          linePos[lineIndex++] = pos[jx+1];
+          linePos[lineIndex++] = pos[jx+2];
+        }
+      }
+    }
+
+    lines.geometry.setDrawRange(0, lineIndex/3);
+    lines.geometry.attributes.position.needsUpdate = true;
+
+    points.rotation.y += 0.0005;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+</script>
+
+<style>
+.show-section { display: block !important; opacity: 1 !important; transform: scale(1) translateY(0) !important; }
+.ai-card { opacity: 0; transform: translateY(20px) scale(0.95); }
+.ai-card.show { opacity: 1; transform: translateY(0) scale(1); transition: all 0.8s ease-out; }
+.holo-text-pro {
+  background: linear-gradient(90deg, #6366f1, #06b6d4, #14b8a6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmerPro 4s linear infinite;
+}
+@keyframes shimmerPro { to { background-position: 200% center; } }
+</style>
+{% endblock %}

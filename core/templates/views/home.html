@@ -1,0 +1,230 @@
+{% extends "base/base.html" %}
+{% block content %}
+{% load static %}
+
+<!-- Hero Section -->
+<section id="home" class="relative h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+  <canvas id="hero3d" class="absolute inset-0 w-full h-full"></canvas>
+
+  <div class="relative z-10 max-w-3xl px-6">
+    <!-- Logo -->
+    <img src="{% static 'images/logo.png' %}" alt="Collex360 Logo"
+         class="mx-auto mb-6 w-24 h-24 drop-shadow-[0_0_10px_rgba(100,116,139,0.5)]">
+
+    <!-- Title -->
+    <h1 class="text-5xl md:text-7xl font-extrabold mb-4 text-transparent bg-clip-text 
+               bg-gradient-to-r from-indigo-400 to-slate-300 
+               drop-shadow-[0_0_15px_rgba(100,116,139,0.5)]">
+      {{ siteinfo.title|default:"Collex360" }}
+    </h1>
+
+    <!-- Tagline -->
+    <p class="text-lg md:text-2xl mb-8 text-gray-300 font-light">
+      {{ siteinfo.tagline|default:"Your Student Companion with AI" }}
+    </p>
+
+    <!-- CTA -->
+    <a href="#features" 
+       class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-slate-600 rounded-full text-lg font-semibold 
+              shadow-[0_0_10px_rgba(99,102,241,0.4)] hover:scale-105 
+              hover:shadow-[0_0_20px_rgba(100,116,139,0.6)] transition duration-300 flex items-center gap-2 justify-center">
+      <i class="fas fa-arrow-right"></i> Explore Features
+    </a>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-24 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-4xl font-bold text-center mb-14 
+               text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-slate-300 drop-shadow-md flex items-center justify-center gap-2">
+      <i class="fas fa-star text-indigo-400"></i> Features
+    </h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-10 place-items-center">
+
+      <!-- Attendance -->
+      <a href="/attendance/"
+         class="flex flex-col items-center justify-center w-32 h-32 sm:w-40 sm:h-40 
+                rounded-full backdrop-blur-md bg-white/5 border border-slate-500/30 
+                shadow-md text-center transition duration-500 
+                hover:scale-105 hover:shadow-[0_0_20px_rgba(100,116,139,0.5)] 
+                hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-gray-800/40">
+        <i class="fas fa-calendar-check text-3xl sm:text-4xl text-indigo-400 mb-2 transition duration-500"></i>
+        <span class="text-sm sm:text-lg font-medium text-gray-200">Attendance</span>
+      </a>
+
+      <!-- Expenses -->
+      <a href="/expense/"
+         class="flex flex-col items-center justify-center w-32 h-32 sm:w-40 sm:h-40 
+                rounded-full backdrop-blur-md bg-white/5 border border-slate-500/30 
+                shadow-md text-center transition duration-500 
+                hover:scale-105 hover:shadow-[0_0_20px_rgba(100,116,139,0.5)] 
+                hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-gray-800/40">
+        <i class="fas fa-wallet text-3xl sm:text-4xl text-emerald-400 mb-2 transition duration-500"></i>
+        <span class="text-sm sm:text-lg font-medium text-gray-200">Expenses</span>
+      </a>
+
+      <!-- Health -->
+      <a href="/health/"
+         class="flex flex-col items-center justify-center w-32 h-32 sm:w-40 sm:h-40 
+                rounded-full backdrop-blur-md bg-white/5 border border-slate-500/30 
+                shadow-md text-center transition duration-500 
+                hover:scale-105 hover:shadow-[0_0_20px_rgba(100,116,139,0.5)] 
+                hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-gray-800/40">
+        <i class="fas fa-heartbeat text-3xl sm:text-4xl text-rose-400 mb-2 transition duration-500"></i>
+        <span class="text-sm sm:text-lg font-medium text-gray-200">Health</span>
+      </a>
+
+      <!-- Skills -->
+      <a href="/skills/"
+         class="flex flex-col items-center justify-center w-32 h-32 sm:w-40 sm:h-40 
+                rounded-full backdrop-blur-md bg-white/5 border border-slate-500/30 
+                shadow-md text-center transition duration-500 
+                hover:scale-105 hover:shadow-[0_0_20px_rgba(100,116,139,0.5)] 
+                hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-gray-800/40">
+        <i class="fas fa-lightbulb text-3xl sm:text-4xl text-amber-400 mb-2 transition duration-500"></i>
+        <span class="text-sm sm:text-lg font-medium text-gray-200">Skills</span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- Stats Section -->
+<section id="stats" class="py-24 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-center">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-4xl font-bold text-center mb-14 
+               text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-slate-300 drop-shadow-md flex items-center justify-center gap-2">
+      <i class="fas fa-chart-line text-indigo-400"></i> Smart Insights
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+
+      <!-- Attendance -->
+      <div class="p-8 rounded-2xl backdrop-blur-md bg-white/5 
+                  border border-slate-600/30 shadow-md 
+                  hover:scale-105 hover:shadow-[0_0_15px_rgba(100,116,139,0.4)] 
+                  transition duration-300">
+        <i class="fas fa-calendar-check text-4xl text-indigo-400 mb-4"></i>
+        <h4 class="text-3xl font-extrabold text-gray-100">95%</h4>
+        <p class="text-gray-400 mt-2">Attendance Accuracy</p>
+      </div>
+
+      <!-- Expenses -->
+      <div class="p-8 rounded-2xl backdrop-blur-md bg-white/5 
+                  border border-slate-600/30 shadow-md 
+                  hover:scale-105 hover:shadow-[0_0_15px_rgba(100,116,139,0.4)] 
+                  transition duration-300">
+        <i class="fas fa-wallet text-4xl text-emerald-400 mb-4"></i>
+        <h4 class="text-3xl font-extrabold text-gray-100">$1.2M+</h4>
+        <p class="text-gray-400 mt-2">Expenses Tracked</p>
+      </div>
+
+      <!-- Health -->
+      <div class="p-8 rounded-2xl backdrop-blur-md bg-white/5 
+                  border border-slate-600/30 shadow-md 
+                  hover:scale-105 hover:shadow-[0_0_15px_rgba(100,116,139,0.4)] 
+                  transition duration-300">
+        <i class="fas fa-heartbeat text-4xl text-rose-400 mb-4"></i>
+        <h4 class="text-3xl font-extrabold text-gray-100">8K+</h4>
+        <p class="text-gray-400 mt-2">Health Logs Recorded</p>
+      </div>
+
+      <!-- Skills -->
+      <div class="p-8 rounded-2xl backdrop-blur-md bg-white/5 
+                  border border-slate-600/30 shadow-md 
+                  hover:scale-105 hover:shadow-[0_0_15px_rgba(100,116,139,0.4)] 
+                  transition duration-300">
+        <i class="fas fa-lightbulb text-4xl text-amber-400 mb-4"></i>
+        <h4 class="text-3xl font-extrabold text-gray-100">5K+</h4>
+        <p class="text-gray-400 mt-2">Skills Built</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Feature Styles -->
+<style>
+  .feature-circle {
+    @apply flex flex-col items-center justify-center w-32 h-32 sm:w-40 sm:h-40 
+           rounded-full backdrop-blur-md bg-white/10 border border-purple-500/30 
+           shadow-lg text-center transition duration-500;
+  }
+  .feature-circle:hover {
+    @apply scale-110 shadow-[0_0_30px_rgba(139,92,246,0.7)] bg-gradient-to-br from-purple-900/40 to-indigo-900/40;
+  }
+  .feature-circle i {
+    @apply text-3xl sm:text-4xl text-purple-400 mb-2 group-hover:text-pink-400 transition duration-500;
+  }
+  .feature-circle span {
+    @apply text-sm sm:text-lg font-semibold text-indigo-200;
+  }
+</style>
+
+<!-- Scripts -->
+<script>
+  // 🌌 Three.js glowing particles
+  const canvas = document.getElementById("hero3d");
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.z = 6;
+
+  const particlesCount = 2500;
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  for (let i = 0; i < particlesCount; i++) {
+    positions.push((Math.random() - 0.5) * 30);
+    positions.push((Math.random() - 0.5) * 30);
+    positions.push((Math.random() - 0.5) * 30);
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({ 
+    color: 0x8b5cf6, 
+    size: 0.04,
+    transparent: true,
+    opacity: 0.85 
+  });
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0008;
+    particles.rotation.x += 0.0003;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // 🔢 Animated counters
+  const counters = document.querySelectorAll('.counter');
+  counters.forEach(counter => {
+    const update = () => {
+      const target = +counter.getAttribute('data-target');
+      const count = +counter.innerText;
+      const increment = target / 150;
+
+      if (count < target) {
+        counter.innerText = Math.ceil(count + increment);
+        requestAnimationFrame(update);
+      } else {
+        counter.innerText = target;
+      }
+    };
+    update();
+  });
+</script>
+
+{% endblock %}

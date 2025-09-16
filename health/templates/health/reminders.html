@@ -1,0 +1,146 @@
+{% extends "base/base.html" %}
+{% block signup %}{% endblock %}
+
+{% block sidebar %}
+<aside
+  class="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-2xl py-8 px-6 flex-col items-center h-[64vh] w-22 z-40 transition">
+  <div class="flex flex-col gap-8 w-full">
+    <!-- Home -->
+    <a href="/" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:scale-110 transition" title="Home">
+      <i class="fas fa-house text-lg"></i>
+    </a>
+    <!-- Habits -->
+    <a href="{% url 'health:track_habits' %}" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-green-400 hover:bg-green-600 hover:text-white hover:scale-110 transition" title="Track Habits">
+      <i class="fas fa-clipboard-list text-lg"></i>
+    </a>
+    <!-- Stress -->
+    <a href="{% url 'health:stress_log' %}" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-yellow-400 hover:bg-yellow-600 hover:text-white hover:scale-110 transition" title="Stress Log">
+      <i class="fas fa-brain text-lg"></i>
+    </a>
+    <!-- Reminders -->
+    <a href="{% url 'health:reminders' %}" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-pink-400 hover:bg-pink-600 hover:text-white hover:scale-110 transition" title="Reminders">
+      <i class="fas fa-bell text-lg"></i>
+    </a>
+    <!-- Back -->
+    <button onclick="history.back()" class="w-14 h-14 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-red-400 hover:bg-red-600 hover:text-white hover:scale-110 transition" title="Go Back">
+      <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+  </div>
+</aside>
+{% endblock %}
+
+{% block mobile_nav %}
+<nav
+  class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-full px-8 py-3 flex justify-center gap-10 z-40">
+  <a href="/" class="text-indigo-400 hover:text-white hover:scale-110 transition" title="Home"><i class="fas fa-house text-xl"></i></a>
+  <a href="{% url 'health:track_habits' %}" class="text-green-400 hover:text-white hover:scale-110 transition" title="Track Habits"><i class="fas fa-clipboard-list text-xl"></i></a>
+  <a href="{% url 'health:stress_log' %}" class="text-yellow-400 hover:text-white hover:scale-110 transition" title="Stress Log"><i class="fas fa-brain text-xl"></i></a>
+  <a href="{% url 'health:reminders' %}" class="text-pink-400 hover:text-white hover:scale-110 transition" title="Reminders"><i class="fas fa-bell text-xl"></i></a>
+  <button onclick="history.back()" class="text-red-400 hover:text-white hover:scale-110 transition" title="Go Back"><i class="fas fa-arrow-left text-xl"></i></button>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+  <!-- Three.js canvas -->
+  <canvas id="bgCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+  <!-- Glassmorphic Card -->
+  <div class="relative z-10 w-full max-w-4xl rounded-2xl backdrop-blur-lg bg-white/5 border border-pink-400/20 shadow-2xl p-6 md:p-10 animate-fadeIn">
+
+    <!-- Title -->
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-200 drop-shadow-[0_0_12px_rgba(236,72,153,0.6)] text-center tracking-wide">
+      Manage Your Reminders
+    </h2>
+
+    <!-- Form -->
+    <form method="post" class="space-y-4 mb-8">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{ form.as_p }}
+      </div>
+      <button type="submit" class="w-full md:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 rounded-lg text-white font-semibold transition">
+        Add Reminder
+      </button>
+    </form>
+
+    <!-- Reminders List -->
+    <h3 class="text-2xl font-semibold mb-4 text-pink-300">Your Reminders</h3>
+    <div class="overflow-x-auto rounded-xl shadow-lg">
+      <table class="w-full border-collapse rounded-lg overflow-hidden">
+        <thead>
+          <tr class="bg-pink-500/20 text-pink-300">
+            <th class="p-3 text-left">Title</th>
+            <th class="p-3 text-center">Time</th>
+            <th class="p-3 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in reminders %}
+          <tr class="border-b border-gray-700 text-gray-200 hover:bg-pink-500/10 transition duration-200 ease-in-out">
+            <td class="p-3 font-medium">{{ r.title }}</td>
+            <td class="p-3 text-center">{{ r.time }}</td>
+            <td class="p-3 text-center">
+              {% if r.is_active %}
+                <span class="text-green-400 font-semibold">Active</span>
+              {% else %}
+                <span class="text-red-400 font-semibold">Inactive</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="p-4 text-center text-gray-400">No reminders yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Three.js Background -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script>
+  const canvas = document.getElementById("bgCanvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 8;
+
+  const particlesCount = 2000;
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  for (let i = 0; i < particlesCount; i++) {
+    positions.push((Math.random() - 0.5) * 50);
+    positions.push((Math.random() - 0.5) * 50);
+    positions.push((Math.random() - 0.5) * 50);
+  }
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({
+    color: 0xec4899,
+    size: 0.06,
+    transparent: true,
+    opacity: 0.8,
+  });
+
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0008;
+    particles.rotation.x += 0.0003;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+{% endblock %}
