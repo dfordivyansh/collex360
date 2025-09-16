@@ -12,9 +12,9 @@ import os
 User = get_user_model()
 if not User.objects.filter(is_superuser=True).exists():
     User.objects.create_superuser(
-        os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin'),
-        os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com'),
-        os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'adminpassword')
+        os.environ.get('DJANGO_SUPERUSER_USERNAME', 'Divyansh'),
+        os.environ.get('DJANGO_SUPERUSER_EMAIL', 'dfordivyansh@gmail.com'),
+        os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin@123')
     )
 "
 
