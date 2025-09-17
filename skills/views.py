@@ -18,14 +18,14 @@ def award_points(user, points=10):
     profile.save()
 
 
-@login_required
+@login_required(login_url="signup")
 def dashboard(request):
     roadmaps = Roadmap.objects.filter(user=request.user)
     profile, _ = Profile.objects.get_or_create(user=request.user)
     return render(request, "skills/dashboard.html", {"roadmaps": roadmaps, "profile": profile})
 
 
-@login_required
+@login_required(login_url="signup")
 def generate_roadmap(request):
     if request.method == "POST":
         form = RoadmapForm(request.POST)
@@ -425,7 +425,7 @@ def generate_roadmap(request):
     return render(request, "skills/generate.html", {"form": form})
 
 
-@login_required
+@login_required(login_url="signup")
 def roadmap_detail(request, roadmap_id):
     roadmap = get_object_or_404(Roadmap, id=roadmap_id, user=request.user)
     if request.method == "POST":
@@ -439,7 +439,7 @@ def roadmap_detail(request, roadmap_id):
     return render(request, "skills/roadmap.html", {"roadmap": roadmap})
 
 
-@login_required
+@login_required(login_url="signup")
 def leaderboard(request):
     profiles = Profile.objects.order_by("-xp")[:10]
     return render(request, "skills/leaderboard.html", {"profiles": profiles})

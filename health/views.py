@@ -5,7 +5,7 @@ from .models import DailyHabit, StressLog, Reminder
 from .forms import DailyHabitForm, StressLogForm, ReminderForm
 
 
-@login_required
+@login_required(login_url="signup")
 def health_dashboard(request):
     user = request.user
 
@@ -46,7 +46,7 @@ def health_dashboard(request):
     return render(request, "health/dashboard.html", context)
 
 
-@login_required
+@login_required(login_url="signup")
 def track_habits(request):
     if request.method == "POST":
         form = DailyHabitForm(request.POST)
@@ -62,7 +62,7 @@ def track_habits(request):
     return render(request, "health/track_habits.html", {"form": form, "habits": habits})
 
 
-@login_required
+@login_required(login_url="signup")
 def stress_log(request):
     if request.method == "POST":
         form = StressLogForm(request.POST)
@@ -78,7 +78,7 @@ def stress_log(request):
     return render(request, "health/stress_log.html", {"form": form, "logs": logs})
 
 
-@login_required
+@login_required(login_url="signup")
 def reminders(request):
     if request.method == "POST":
         form = ReminderForm(request.POST)
